@@ -31,7 +31,7 @@ class HomeController extends Controller
         $posts = Post::getPaginatePosts([], 5);
 
         if($request->ajax()) {
-            $view = view('user.post_data', compact('posts'))->render();
+            $view = view('user.post_data', compact('posts', 'comments'))->render();
             return response()->json(['html' => $view]);
         }
 
@@ -100,5 +100,36 @@ class HomeController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Comment has been added succesfully.');
+    }
+
+    public function singlePost(Request $request, $id)
+    {
+        $data = Post::getPosts(['posts.id' => $id])->first();
+        $comments = Comment::getComments(['comments.post_id' => $id]);
+
+        if($request->ajax()){
+            return response()->json($data);
+        }
+
+        return view('user.single_post', compact('data', 'comments'));
+    }
+
+    public function deletePost($id)
+    {
+        $data = Post::where(['id' => $id, 'user_id' => Auth::user()->id])->first();
+
+        if ($data != '') {
+            Comment::where('post_id', $id)->delete();
+            Post::where('id', $id)->delete();
+        } else {
+            return 'not permitted';
+        }
+
+        return redirect()->back()->with('success', 'Post has been deleted succesfully.');
+    }
+
+    public function updatePost(Request $request)
+    {
+        return response()->json($request->all());
     }
 }

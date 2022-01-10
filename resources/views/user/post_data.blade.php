@@ -4,7 +4,7 @@
             <div class="card-header">
                 <div class="row justify-content-between">
                     <div class="col-md-11">
-                        <h3><a href="">{{ $post->title }}</a></h3>
+                        <h3><a href="{{ route('home.single-post', $post->id) }}">{{ $post->title }}</a></h3>
                     </div>
                     <div class="col-md-1">
                         <div class="dropdown">
@@ -12,10 +12,10 @@
                             </button>
                             <ul class="dropdown-menu">
                                 @if ($post->user_id == Auth::user()->id)
-                                <li><a class="dropdown-item" href="#">Edit Post</a></li>
-                                <li><a class="dropdown-item" href="#">Delete Post</a></li>
+                                <li><a class="dropdown-item" data-bs-toggle="modal" onclick="editPost({{ $post->id }})" data-bs-target="#editModal" style="cursor: pointer" onmouseover="this.classList.add('bg-warning')" onmouseout="this.classList.remove('bg-warning')">Edit</a></li>
+                                <li><a class="dropdown-item" href="{{ route('home.delete-post', $post->id) }}" onmouseover="this.classList.add('bg-danger')" onmouseout="this.classList.remove('bg-danger')">Delete</a></li>
                                 @endif
-                                <li><a class="dropdown-item" href="#">Show Post</a></li>
+                                <li><a class="dropdown-item" href="{{ route('home.single-post', $post->id) }}" onmouseover="this.classList.add('bg-info')" onmouseout="this.classList.remove('bg-info')">Show</a></li>
                             </ul>
                         </div>
                     </div>
@@ -42,7 +42,7 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-10">
-                                <input type="text" name="comment" placeholder="Add Comment" required class="form-control" style="border-radius: 25px 25px 25px 25px">
+                                <input type="text" maxlength="255" name="comment" placeholder="Add Comment" required class="form-control" style="border-radius: 25px 25px 25px 25px">
                             </div>
                             <div class="col-md-2 d-grid gap-2 mx-auto">
                                 <button type="submit" class="btn btn-primary">Submit</button>
