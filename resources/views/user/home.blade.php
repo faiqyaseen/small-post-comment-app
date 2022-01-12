@@ -8,22 +8,23 @@
 @endsection
 
 @section('content')
+<div id="alertMessage" style="position: sticky; top: 0;" class="alert d-none" role="alert"></div>
+@if(Session::has('success'))
+    <div style="position: sticky; top: 0;" class="alert alert-success" role="alert">{{ Session::get('success') }}</div>
+@endif
 
 <div class="container">
-    @if(Session::has('success'))
-        <div class="alert alert-success" role="alert">{{ Session::get('success') }}</div>
-    @endif
     <div class="row justify-content-center">
         <div class="col-md-12">
             <h2>Add Post</h2>
         <hr>
-            <div class="card">
+            <div class="card" style="position: static">
                 <div class="card-body">
                     <div class="row">
-                        <form action="{{ route('home.add-post') }}" method="POST" enctype="multipart/form-data">
+                        <form id="addForm">
                             @csrf
                             @method('POST')
-                            <input type="text" name="title" value="{{ old('title') }}" class="form-control" placeholder="Add post title here...">
+                            <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-control" placeholder="Add post title here...">
                             @error('title')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -39,7 +40,7 @@
                                 <img id="postImg" class="mt-2" style="max-width: 100%;" alt="">
                             </div>
                             <div>
-                                <button type="submit" class="btn btn-primary mt-2 float-end">Add Post</button>
+                                <button type="button" onclick="addPost()" class="btn btn-primary mt-2 float-end">Add Post</button>
                             </div>
                         </form>
                     </div>
@@ -51,7 +52,8 @@
     <div class="row justify-content-center" id="postData">
         <h2 class="mt-5">Posts</h2>
         <hr>
-        @include('user.post_data')
+        <div class="col-md-8" id="newPost"></div>
+        @include('user.post.post_data')
     </div>
 </div>
 <div class="ajax-load text-center">
@@ -63,11 +65,11 @@
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Edit Post</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form action="" method="POST" id="editForm" enctype="multipart/form-data">
+            <form id="editForm">
                 @csrf
                 <input type="hidden" name="id" id="edid">
                 <div class="row my-3">
@@ -108,16 +110,59 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" onclick="updatePost()" class="btn btn-primary">Save changes</button>
             </div>
         </form>
       </div>
     </div>
-  </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Post</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <h3>Are you sure you want to delete this post?</h3>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="deletePost" class="btn btn-danger">Delete</button>
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
 @endsection
 @section('script-section')
+@include('user.post.ajax_add_post')
     <script>
+
+        function deletePost (id) {
+            $("#deleteModal").modal("show");
+            $("#deletePost").click(function () {
+                var url = "{{ route('home.delete-post', ':id') }}";
+                url = url.replace(":id", id);
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    error: function (data) {
+                        console.log(data);
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            $("#deleteModal").modal("hide");
+                            $("#postDiv"+id).remove();
+                            $("#alertMessage").addClass("alert-success").removeClass("d-none").html("Your post has been deleted successfully.")
+                        } else {
+                            alert("something went wrong....!");
+                        }
+                        
+                    }
+                });
+            })
+        }
 
         // Edit Work
         function editPost(post_id) {
@@ -156,24 +201,28 @@
         }
 
         function updatePost() {
+            var formData = new FormData($("#editForm")[0]);
             $.ajax({
                 url: '{{ route("update-post") }}',
                 type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: $("#edid").val(),
-                    title: $("#edtitle").val(),
-                    description: $("#eddescription").val(),
-                    image: $("#edimage").val(),
-                    previmage: $("#edprevImage").val(),
-                },
+                data: formData,
                 contentType: false,
                 processData: false,
                 error: function(data){
                     console.log(data);
                 },
                 success: function(data){
-                    console.log(data)
+                    $("#editModal").modal("hide");
+                    if (data.status != 'error') {
+                        $("#ptitle"+data.id).html(data.title);
+                        $("#post-"+data.id).html(data.description);
+                        $("#hiddenDesc"+data.id).html(data.description);
+                        var image = "{{ asset('images/post/:image') }}";
+                        image = image.replace(":image", data.image);
+                        $("#pimage"+data.id).attr("src", image);
+                        $("#btn-"+data.id).removeClass('btn-success').addClass('btn-secondary').html('Read less').attr('onclick', 'readLess('+data.id+')');
+                        $("#alertMessage").addClass("alert-success").removeClass("d-none").html("Your post has been updated successfully.")
+                    }
                 }
             })
         }
@@ -213,17 +262,18 @@
             }
         })
 
-        function readMore(description, id) {
-            var short_desc = $("#post-"+id).html();
-
+        function readMore(id) {
+            var description = $("#hiddenDesc"+id).html();
             $("#post-"+id).html(description);
-            $("#btn-"+id).removeClass('btn-success').addClass('btn-secondary').html('Read less').attr('onclick', `readLess('${description}', '${short_desc}', ${id})`);
+            $("#btn-"+id).removeClass('btn-success').addClass('btn-secondary').html('Read less').attr('onclick', 'readLess('+id+')');
         }
 
-        function readLess(description ,short_description, id) {
-            $("#post-"+id).html(short_description);
-            $("#btn-"+id).removeClass('btn-secondary').addClass('btn-success').html('Read More').attr('onclick', `readMore('${description}', ${id})`);
+        function readLess(id) {
+            var short_des = $("#hiddenDesc"+id).html().substring('0', 60) + '...'; 
+            $("#post-"+id).html(short_des);
+            $("#btn-"+id).removeClass('btn-secondary').addClass('btn-success').html('Read More').attr('onclick', 'readMore('+id+')');
         }
+
 
         function previewPostImage () {
             var post_file = $("#image").get(0).files[0];

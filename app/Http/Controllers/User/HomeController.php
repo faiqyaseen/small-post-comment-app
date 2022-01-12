@@ -31,7 +31,7 @@ class HomeController extends Controller
         $posts = Post::getPaginatePosts([], 5);
 
         if($request->ajax()) {
-            $view = view('user.post_data', compact('posts', 'comments'))->render();
+            $view = view('user.post.post_data', compact('posts', 'comments'))->render();
             return response()->json(['html' => $view]);
         }
 
@@ -44,7 +44,7 @@ class HomeController extends Controller
         $posts = Post::getPaginatePosts(['users.id' => $id], 5);
 
         if($request->ajax()) {
-            $view = view('mypost_data', compact('posts'))->render();
+            $view = view('user.post.mypost_data', compact('posts'))->render();
             return response()->json(['html' => $view]);
         }
 
@@ -76,11 +76,16 @@ class HomeController extends Controller
 
         $data['user_id'] =  Auth::user()->id;
 
-        Post::create($data);
+        $check = Post::create($data);
 
-        return redirect()
-            ->route('dashboard')
-            ->with('success','Post has been added successfully.');
+        if ($check) {
+            $response = $check;
+        } else {
+            $response = ['status', 'fail'];
+        }
+
+        return response()
+            ->json($response);
     }
 
     public function addComment(Request $request, $id)
@@ -111,7 +116,7 @@ class HomeController extends Controller
             return response()->json($data);
         }
 
-        return view('user.single_post', compact('data', 'comments'));
+        return view('user.post.single_post', compact('data', 'comments'));
     }
 
     public function deletePost($id)
@@ -122,14 +127,55 @@ class HomeController extends Controller
             Comment::where('post_id', $id)->delete();
             Post::where('id', $id)->delete();
         } else {
-            return 'not permitted';
+            return response()->json(['status' => 'error']);
         }
 
-        return redirect()->back()->with('success', 'Post has been deleted succesfully.');
+        return response()->json(['status' => 'success']);
     }
 
     public function updatePost(Request $request)
     {
-        return response()->json($request->all());
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+        ]);
+
+        $data = $request->except([
+            '_token',
+            '_method',
+            'image',
+            'prevImage'
+        ]);
+
+        if ($request->hasFile('image')) {
+            if(isset($request->prevImage)) {
+                if (file_exists(public_path('/images/post'.$request->prevImage))) {
+                    unlink(public_path('/images/post'.$request->prevImage));
+                }
+            }
+
+            $image = $request->file('image');
+            $extension = $image->getClientOriginalExtension();
+            $ImageName = 'post-' . time(). '.' . $extension;
+            $image->move(public_path('/images/post'), $ImageName);
+
+            $data['image'] = $ImageName;
+        } else {
+            $data['image'] = $request->prevImage;
+        }
+
+        $check = Post::where(
+            [
+                'id' => $request->id,
+                'user_id' => Auth::user()->id
+            ]
+        )->update($data);
+
+        if ($check) {
+            return response()
+            ->json(Post::find($request->id));
+        }
+
+        return response()->json(['status', 'error']);
     }
 }

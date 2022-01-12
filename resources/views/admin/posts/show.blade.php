@@ -30,7 +30,7 @@
                                     <div class="col-md-2">
                                         <dt>Id</dt>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <dd>{{ $data->id }}</dd>
                                     </div>
                                 </div>
@@ -41,7 +41,7 @@
                                     <div class="col-md-2">
                                         <dt>Post By</dt>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <dd>{{ $data->user_name . ' - ' . $data->user_email}}</dd>
                                     </div>
                                 </div>  
@@ -52,7 +52,7 @@
                                     <div class="col-md-2">
                                         <dt>Title</dt>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <dd>{{ $data->title }}</dd>
                                     </div>
                                 </div>  
@@ -63,7 +63,7 @@
                                     <div class="col-md-2">
                                         <dt>Description</dt>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <dd>{{ $data->description }}</dd>
                                     </div>
                                 </div>  
@@ -75,8 +75,8 @@
                                     <div class="col-md-2">
                                         <dt>Image</dt>
                                     </div>
-                                    <div class="col-md-6">
-                                        <dd><img src="{{ asset('images/post/'.$data->image) }}" height="100" width="100" alt="Post Image"></dd>
+                                    <div class="col-md-9">
+                                        <dd><img src="{{ asset('images/post/'.$data->image) }}" style="max-width: 100%" alt="Post Image"></dd>
                                     </div>
                                 </div>  
                             </dl>
