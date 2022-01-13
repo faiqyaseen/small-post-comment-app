@@ -25,8 +25,11 @@
                             @csrf
                             @method('POST')
                             <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-control" placeholder="Add post title here...">
+                            <span class="text-danger" id="titleerror"></span>
                             <textarea name="description" placeholder="Add post description here..." class="form-control" id="description" >{{ old('description') }}</textarea>
+                            <span class="text-danger" id="descriptionerror"></span>
                             <input type="file" name="image" onchange="previewPostImage(this)" id="image" class="form-control">
+                            <span class="text-danger" id="imageerror"></span>
                             <div style="overflow-y: scroll; max-height: 50vh">
                                 <img id="postImg" class="mt-2" style="max-width: 100%;" alt="">
                             </div>
@@ -69,6 +72,7 @@
                     </div>
                     <div class="col-md-8">
                         <input type="text" class="form-control" name="title" id="edtitle" placeholder="Post Title">
+                        <span class="text-danger" id="edtitleerror"></span>
                     </div>
                 </div>
                 <div class="row my-3">
@@ -77,6 +81,7 @@
                     </div>
                     <div class="col-md-8">
                         <textarea name="description" id="eddescription" cols="30" rows="5" class="form-control"></textarea>
+                        <span class="text-danger" id="eddescriptionerror"></span>
                     </div>
                 </div>
                 <div class="row my-3">
@@ -201,6 +206,18 @@
                 processData: false,
                 error: function(data){
                     console.log(data);
+                    if (data.responseJSON.errors.title) {
+                        $("#edtitleerror").html(data.responseJSON.errors.title);
+                    } else{
+                        $("#edtitleerror").html('');
+                    }
+
+                    if (data.responseJSON.errors.description) {
+                        $("#eddescriptionerror").html(data.responseJSON.errors.description);
+                    } else {
+                        $("#eddescriptionerror").html('');
+
+                    }
                 },
                 success: function(data){
                     $("#editModal").modal("hide");
@@ -276,6 +293,38 @@
 
                 reader.readAsDataURL(post_file);
             }
+        }
+
+        function addComment(id) {
+            let comment = $("#comment"+id).val();
+            var url = "{{ route('home.add-comment', ':id') }}";
+            url = url.replace(":id", id);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    comment: comment
+                },
+                error: function(data){
+                    console.log(data);
+                },
+                success: function(data){
+                    if (data.status != false) {
+                        $("#comment"+id).val('');
+                        $("#alertMessage").addClass("alert-success").removeClass("d-none").html("Your comment has been posted successfully.");
+                        var postedComment = `<div class="col-md-2">
+                            <p class="text-end">You</p>
+                            </div>
+                            <div class="col-md-10">  
+                                <p>${data.comment}</p>      
+                                <hr>
+                            </div>`;
+                        $("#comments"+id).prepend(postedComment);
+                    }
+                    
+                }
+            });
         }
     </script>
 @endsection

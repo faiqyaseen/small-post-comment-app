@@ -39,19 +39,19 @@
                 @endif
                 <img class="post_img" id="pimage{{ $post->id }}" src="{{ asset('images/post/' . $post->image) }}"  style="width: 100%; max-height: 450px" alt="">
                 <div class="mt-2">
-                    <form action="{{ route('home.add-comment', $post->id) }}" method="POST">
+                    <form>
                         @csrf
                         <div class="row">
                             <div class="col-md-10">
-                                <input type="text" maxlength="255" name="comment" placeholder="Add Comment" required class="form-control" style="border-radius: 25px 25px 25px 25px">
+                                <input type="text" id="comment{{ $post->id }}" maxlength="255" name="comment" placeholder="Add Comment" required class="form-control" style="border-radius: 25px 25px 25px 25px">
                             </div>
                             <div class="col-md-2 d-grid gap-2 mx-auto">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="button" onclick="addComment({{ $post->id }})" class="btn btn-primary">Submit</button>
                             </div>
                         </div>
                     </form>
                     <hr>
-                    <div class="row">
+                    <div class="row" id="comments{{ $post->id }}">
                         @foreach($comments as $comment)
                         @if ($comment->post_id == $post->id)
                         <div class="col-md-2">

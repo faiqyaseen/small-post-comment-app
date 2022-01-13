@@ -98,13 +98,17 @@ class HomeController extends Controller
         $user_id = Auth::user()->id;
         $post_id = $id;
 
-        Comment::create([
+        $check = Comment::create([
             'comment' => $comment,
             'user_id' => $user_id,
             'post_id' => $post_id
         ]);
 
-        return redirect()->back()->with('success', 'Comment has been added succesfully.');
+        if ($check) {
+            return response()->json($check);
+        }
+
+        return response()->json(['status', false]);
     }
 
     public function singlePost(Request $request, $id)

@@ -9,9 +9,23 @@
         processData: false,
         error: function(data){
             console.log(data);
-            $("#title").after(`<span class="text-danger error-message">${data.responseJSON.errors.title}</span>`);
-            $("#description").after(`<span class="text-danger error-message">${data.responseJSON.errors.description}</span>`);
-            $("#image").after(`<span class="text-danger error-message">${data.responseJSON.errors.image}</span>`);
+            if (data.responseJSON.errors.title) {
+                $("#titleerror").html(data.responseJSON.errors.title);
+            } else{
+                $("#titleerror").html('');
+            }
+
+            if (data.responseJSON.errors.description) {
+                $("#descriptionerror").html(data.responseJSON.errors.description);
+            } else {
+                $("#descriptionerror").html('');
+            }
+
+            if (data.responseJSON.errors.image) {
+                $("#imageerror").html(data.responseJSON.errors.image);
+            } else {
+                $("#imageerror").html('');
+            }
         },
         success: function(data){
             if (data.status != "fail") {
@@ -61,6 +75,23 @@
                         <button id="btn-${data.id}" onclick="readMore(${data.id})" class="btn btn-sm btn-success">Read More</button>
                     </div>
                     <img class="post_img" id="pimage${data.id}" src="${image_src}"  style="width: 100%; max-height: 450px" alt="">
+                    <div class="mt-2">
+                    <form>
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-10">
+                                <input type="text" id="comment${data.id}" maxlength="255" name="comment" placeholder="Add Comment" required class="form-control" style="border-radius: 25px 25px 25px 25px">
+                            </div>
+                            <div class="col-md-2 d-grid gap-2 mx-auto">
+                                <button type="button" onclick="addComment(${data.id})" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="row" id="comments${data.id}">
+                        
+                    </div>
+                </div>
                 </div>
             </div>
         </div>
