@@ -9,9 +9,13 @@
         processData: false,
         error: function(data){
             console.log(data);
+            $("#title").after(`<span class="text-danger error-message">${data.responseJSON.errors.title}</span>`);
+            $("#description").after(`<span class="text-danger error-message">${data.responseJSON.errors.description}</span>`);
+            $("#image").after(`<span class="text-danger error-message">${data.responseJSON.errors.image}</span>`);
         },
         success: function(data){
             if (data.status != "fail") {
+                $(".error-message").remove();
                 $("#alertMessage").addClass("alert-success").removeClass("d-none").html("Your post has been added successfully.")
                 $("#addForm").trigger("reset");
                 $("#postImg").attr("src", "");

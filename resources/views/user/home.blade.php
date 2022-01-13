@@ -25,17 +25,8 @@
                             @csrf
                             @method('POST')
                             <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-control" placeholder="Add post title here...">
-                            @error('title')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
                             <textarea name="description" placeholder="Add post description here..." class="form-control" id="description" >{{ old('description') }}</textarea>
-                            @error('description')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
                             <input type="file" name="image" onchange="previewPostImage(this)" id="image" class="form-control">
-                            @error('image')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
                             <div style="overflow-y: scroll; max-height: 50vh">
                                 <img id="postImg" class="mt-2" style="max-width: 100%;" alt="">
                             </div>

@@ -131,6 +131,12 @@ class HomeController extends Controller
         $data = Post::where(['id' => $id, 'user_id' => Auth::user()->id])->first();
 
         if ($data != '') {
+            if ($data->image != '') {
+                if (file_exists(public_path('/images/post/'.$data->image))) {
+                    unlink(public_path('/images/post/'.$data->image));
+                }
+            }
+
             Comment::where('post_id', $id)->delete();
             Post::where('id', $id)->delete();
         } else {
@@ -156,8 +162,8 @@ class HomeController extends Controller
 
         if ($request->hasFile('image')) {
             if(isset($request->prevImage)) {
-                if (file_exists(public_path('/images/post'.$request->prevImage))) {
-                    unlink(public_path('/images/post'.$request->prevImage));
+                if (file_exists(public_path('/images/post/'.$request->prevImage))) {
+                    unlink(public_path('/images/post/'.$request->prevImage));
                 }
             }
 
