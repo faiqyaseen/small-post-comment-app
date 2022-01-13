@@ -112,6 +112,13 @@ class HomeController extends Controller
         $data = Post::getPosts(['posts.id' => $id])->first();
         $comments = Comment::getComments(['comments.post_id' => $id]);
 
+        if($data == '') {
+            if($request->ajax()){
+                return response()->json(['status', 'fail']);
+            }
+            return 'may be this post is deleted....';
+        }
+
         if($request->ajax()){
             return response()->json($data);
         }

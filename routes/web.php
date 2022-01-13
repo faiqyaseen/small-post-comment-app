@@ -72,7 +72,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/', [UserHomeController::class, 'index'])->name('dashboard');
     Route::post('/add-post', [UserHomeController::class, 'addPost'])->name('home.add-post');
     Route::post('/add-comment/{id}', [UserHomeController::class, 'addComment'])->name('home.add-comment');
-    Route::get('post/{id}', [UserHomeController::class, 'singlePost'])->name('home.single-post');
+    Route::get('post/{id}', [UserHomeController::class, 'singlePost'])->name('home.single-post')->where('id', '[0-9]+');
     Route::get('post/delete/{id}', [UserHomeController::class, 'deletePost'])->name('home.delete-post');
     Route::post('post/update/', [UserHomeController::class, 'updatePost'])->name('update-post');
     Route::post('logout', [UserLoginController::class, 'logout'])->name('logout');
