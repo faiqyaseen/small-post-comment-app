@@ -1,30 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <title>Posts</title>
-</head>
-<body>
-    <section>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-12">
-                    <div class="card shadow mt-5">
-                        <div class="card-header">
-                            <div class="row justify-content-between">
-                                <div class="col-md-4">
-                                    <h3 class="float-start">Posts</h3>
-                                </div>
-                                <div class="col-md-4">
-                                    <a href="{{ route('admin.posts.create') }}" class="btn btn-sm btn-primary float-end">Add Post</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body" id="tableData">
-                            @if (Session::has('success'))
+@if (Session::has('success'))
                                 <div class="alert alert-success" role="alert">{{ Session::get('success') }}</div>
                             @endif
                             <table class="table table-striped table-hover">
@@ -65,36 +39,3 @@
                             <div class="d-flex justify-content-center">
                                 {!! $records->links() !!}
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-
-    <script>
-        function deleteFunction(id) {
-            $("#deleteForm"+id).submit()
-        }
-
-        $(document).on('click', '.pagination a', function(event){
-            event.preventDefault();
-            var page = $(this).attr('href').split('page=')[1];
-            fetch_data(page);
-        });
-
-        function fetch_data(page) {
-            $.ajax({
-                url: '?page=' + page,
-                success:function(data)
-                {
-                    $('#tableData').html(data);
-                }
-            });
-        }
-    </script>
-</body>
-</html>

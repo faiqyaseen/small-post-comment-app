@@ -25,9 +25,14 @@ class PostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $records = Post::getPosts();
+        $records = Post::getPaginatePosts([], 5);
+
+        if ($request->ajax()) {
+            $records = Post::getPaginatePosts([], 5);
+            return view('admin.posts.paginate_data', compact('records'))->render();
+        }
 
         return view('admin.posts.index', compact('records'));
     }
